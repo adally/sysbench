@@ -6,7 +6,7 @@ extern "C" {
 #define SB_NUODB_ERROR 1
 #define SB_NUODB_DEADLOCK 2
 
-void * nuodb_create_connection(const char * host, const char * user, const char * password, const char * database, const char * schema);
+void * nuodb_create_connection(const char * chorus, const char * user, const char * password, const char * schema);
 
 void nuodb_close_connection(void * conn);
 

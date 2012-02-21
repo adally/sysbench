@@ -32,10 +32,9 @@
 
 static sb_arg_t nuodb_drv_args[] =
 {
-  {"nuodb-host", "NuoDB server host", SB_ARG_TYPE_STRING, "localhost"},
+  {"nuodb-chorus", "NuoDB chorus name (e.g. test@localhost:1234 ) ", SB_ARG_TYPE_STRING, "test@localhost"},
   {"nuodb-user", "NuoDB user", SB_ARG_TYPE_STRING, "cloud"},
   {"nuodb-password", "NuoDB password", SB_ARG_TYPE_STRING, "user"},
-  {"nuodb-database", "NuoDB database name", SB_ARG_TYPE_STRING, "test"},
   {"nuodb-schema", "NuoDB schema name", SB_ARG_TYPE_STRING, "test"},
   
   {NULL, NULL, SB_ARG_TYPE_NULL, NULL}
@@ -43,10 +42,10 @@ static sb_arg_t nuodb_drv_args[] =
 
 typedef struct
 {
-  char               *host;
+  char               *chorus;
   char               *user;
   char               *password;
-  char               *db;
+  char               *schema;
 } nuodb_drv_args_t;
 
 /* NuoSQL driver capabilities */
@@ -148,10 +147,9 @@ int nuodb_drv_describe(drv_caps_t *caps)
 int nuodb_drv_connect(db_conn_t *sb_conn)
 {
   sb_conn->ptr = nuodb_create_connection(
-    sb_get_value_string("nuodb-host"),
+    sb_get_value_string("nuodb-chorus"),
     sb_get_value_string("nuodb-user"),
     sb_get_value_string("nuodb-password"),
-    sb_get_value_string("nuodb-database"),
     sb_get_value_string("nuodb-schema")
   );
 

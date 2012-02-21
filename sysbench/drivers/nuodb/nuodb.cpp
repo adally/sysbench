@@ -12,7 +12,7 @@
 
 #include <string.h>
 
-void * nuodb_create_connection(const char * host, const char * user, const char * password, const char * database, const char * schema)
+void * nuodb_create_connection(const char * chorus, const char * user, const char * password, const char * schema)
 {
   try
   {
@@ -24,7 +24,7 @@ void * nuodb_create_connection(const char * host, const char * user, const char 
     properties->putValue("password", password);
     properties->putValue("schema", schema);
 
-    conn->openDatabase(database, properties);
+    conn->openDatabase(chorus, properties);
     
     return (void *) conn;
   }
