@@ -56,11 +56,10 @@ int nuodb_execute(void * conn, const char * query)
   }
   catch (SQLException& xcp)
   {
-    if (strstr(xcp.getText(), "conflict") || strstr(xcp.getText(), "deadlock") || strstr(xcp.getText(), "timeout") || strstr(xcp.getText(), "duplicate")) {
+    if (strstr(xcp.getText(), "conflict") || strstr(xcp.getText(), "deadlock") || strstr(xcp.getText(), "timeout") || strstr(xcp.getText(), "duplicate") || strstr(xcp.getText(), "pending")) {
       return SB_NUODB_DEADLOCK;
     } else {
       printf("Exception in nuodb_execute(): %s\n", xcp.getText());
-      printf("ret is %i", strncmp(xcp.getText(), "conflict", 8));
       printf("Query: %s\n", query);
       return SB_NUODB_ERROR;
     }
