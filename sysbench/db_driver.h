@@ -321,4 +321,8 @@ int register_driver_oracle(sb_list_t *);
 int register_driver_pgsql(sb_list_t *);
 #endif
 
+#ifdef USE_NUODB
+int register_driver_nuodb(sb_list_t *);
+#endif
+
 #endif /* DB_DRIVER_H */

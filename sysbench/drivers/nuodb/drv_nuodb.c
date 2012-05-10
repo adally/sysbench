@@ -1,19 +1,30 @@
-/* Copyright (C) 2005 MySQL AB
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/****************************************************************************
+ * Copyright (c) 2012, NuoDB, Inc.
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of NuoDB, Inc. nor the names of its contributors may
+ *       be used to endorse or promote products derived from this software
+ *       without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NUODB, INC. BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************/
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -52,14 +63,9 @@ typedef struct
 
 static drv_caps_t nuodb_drv_caps =
 {
-  1,    /* multi_rows_insert */
-  1,    /* prepared_statements */
-  0,    /* auto_increment */
-  1,    /* needs_commit */
-  0,    /* serial */
-  0,    /* unsigned int */
-  
-  NULL  /* table_options_str */
+    .multi_rows_insert = 1,
+    .prepared_statements = 1,
+    .needs_commit = 1
 };
 
 static nuodb_drv_args_t args;          /* driver args */
@@ -205,7 +211,7 @@ int nuodb_drv_bind_param(db_stmt_t *stmt, db_bind_t *params, unsigned int len)
         case DB_TYPE_CHAR:
         case DB_TYPE_VARCHAR:
           {
-            char * copy_str = strcpy(calloc(params[i].data_len + 1, sizeof(char)), params[i].buffer);
+            char * copy_str = strcpy(calloc(*(params[i].data_len) + 1, sizeof(char)), params[i].buffer);
             nuodb_bind_param_string(stmt->ptr, i + 1, copy_str);
             free(copy_str);
             break;

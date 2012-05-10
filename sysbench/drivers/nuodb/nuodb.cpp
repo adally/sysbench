@@ -1,3 +1,31 @@
+/****************************************************************************
+ * Copyright (c) 2012, NuoDB, Inc.
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of NuoDB, Inc. nor the names of its contributors may
+ *       be used to endorse or promote products derived from this software
+ *       without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL NUODB, INC. BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ****************************************************************************/
+
 /* 
 # This file contains the glue functions between the sysbench C API and the NuoDB C++ api
 # The NuoDB C++ calls had to be abstracted in a separate file as placining them directly in
@@ -16,10 +44,9 @@ void * nuodb_create_connection(const char * chorus, const char * user, const cha
 {
   try
   {
-    Connection *conn;
-    conn = createConnection();
+    NuoDB::Connection *conn = createConnection();
 
-    Properties *properties = conn->allocProperties();
+    NuoDB::Properties *properties = conn->allocProperties();
     properties->putValue("user", user);
     properties->putValue("password", password);
     properties->putValue("schema", schema);
@@ -28,7 +55,7 @@ void * nuodb_create_connection(const char * chorus, const char * user, const cha
     
     return (void *) conn;
   }
-  catch (SQLException& xcp)
+  catch (NuoDB::SQLException& xcp)
   {
     return NULL;
   }
@@ -36,7 +63,7 @@ void * nuodb_create_connection(const char * chorus, const char * user, const cha
 
 void nuodb_close_connection(void * conn)
 {
-  Connection *nuodb_conn = (Connection *) conn;
+  NuoDB::Connection *nuodb_conn = (NuoDB::Connection *) conn;
   nuodb_conn->close();
 }
 
@@ -49,12 +76,12 @@ int nuodb_execute(void * conn, const char * query)
 {
   try
   {
-    Connection *nuodb_conn = (Connection *) conn;
-    Statement *nuodb_stmt = nuodb_conn->createStatement();
+    NuoDB::Connection *nuodb_conn = (NuoDB::Connection *) conn;
+    NuoDB::Statement *nuodb_stmt = nuodb_conn->createStatement();
     nuodb_stmt->execute(query);
     return SB_NUODB_OK;
   }
-  catch (SQLException& xcp)
+  catch (NuoDB::SQLException& xcp)
   {
     if (strstr(xcp.getText(), "conflict") || strstr(xcp.getText(), "deadlock") || strstr(xcp.getText(), "timeout") || strstr(xcp.getText(), "duplicate") || strstr(xcp.getText(), "pending")) {
       return SB_NUODB_DEADLOCK;
@@ -68,17 +95,17 @@ int nuodb_execute(void * conn, const char * query)
 
 int nuodb_execute_query(void * conn, const char * query, void * rs)
 {
-  Statement * nuodb_stmt;
+  NuoDB::Statement * nuodb_stmt;
   try
   {
-    Connection *nuodb_conn = (Connection *) conn;
+    NuoDB::Connection *nuodb_conn = (NuoDB::Connection *) conn;
     nuodb_stmt = nuodb_conn->createStatement();
-    ResultSet *nuodb_rs = nuodb_stmt->executeQuery(query);
+    NuoDB::ResultSet *nuodb_rs = nuodb_stmt->executeQuery(query);
     nuodb_stmt->close();
     rs = nuodb_rs;
     return SB_NUODB_OK;
   }
-  catch (SQLException& xcp)
+  catch (NuoDB::SQLException& xcp)
   {
     if (nuodb_stmt != NULL) {
       nuodb_stmt->close();
@@ -98,11 +125,11 @@ void * nuodb_prepare_statement(void * conn, const char * query)
 {
   try
   {
-    Connection *nuodb_conn = (Connection *) conn;
-    PreparedStatement *nuodb_stmt = nuodb_conn->prepareStatement(query);
+    NuoDB::Connection *nuodb_conn = (NuoDB::Connection *) conn;
+    NuoDB::PreparedStatement *nuodb_stmt = nuodb_conn->prepareStatement(query);
     return nuodb_stmt;
   }
-  catch (SQLException& xcp)
+  catch (NuoDB::SQLException& xcp)
   {
     printf("Exception in nuodb_prepare_statement(): %s\n", xcp.getText());
     printf("Query: %s\n", query);
@@ -112,19 +139,19 @@ void * nuodb_prepare_statement(void * conn, const char * query)
 
 void nuodb_bind_param_int(void * stmt, unsigned int pos, int value)
 {
-  PreparedStatement *nuodb_stmt = (PreparedStatement *) stmt;
+  NuoDB::PreparedStatement *nuodb_stmt = (NuoDB::PreparedStatement *) stmt;
   nuodb_stmt->setInt(pos, (int) value);
 }
 
 void nuodb_bind_param_string(void * stmt, unsigned int pos, const char * value)
 {
-  PreparedStatement *nuodb_stmt = (PreparedStatement *) stmt;
+  NuoDB::PreparedStatement *nuodb_stmt = (NuoDB::PreparedStatement *) stmt;
   nuodb_stmt->setString(pos, value);
 }
 
 void nuodb_bind_param_null(void * stmt, unsigned int pos)
 {
-  PreparedStatement *nuodb_stmt = (PreparedStatement *) stmt;
+  NuoDB::PreparedStatement *nuodb_stmt = (NuoDB::PreparedStatement *) stmt;
   nuodb_stmt->setNull(pos, 0);
 }
 
@@ -132,12 +159,12 @@ int nuodb_execute_prepared_statement(void * stmt, void * rs)
 {
   try
   {
-    PreparedStatement *nuodb_stmt = (PreparedStatement *) stmt;
-    ResultSet *nuodb_rs = nuodb_stmt->executeQuery();
+    NuoDB::PreparedStatement *nuodb_stmt = (NuoDB::PreparedStatement *) stmt;
+    NuoDB::ResultSet *nuodb_rs = nuodb_stmt->executeQuery();
     rs = nuodb_rs;
     return SB_NUODB_OK;
   }
-  catch (SQLException& xcp)
+  catch (NuoDB::SQLException& xcp)
   {
     if (strstr(xcp.getText(), "conflict") || strstr(xcp.getText(), "deadlock") || strstr(xcp.getText(), "timeout") || strstr(xcp.getText(), "duplicate")) {
       return SB_NUODB_DEADLOCK;
@@ -156,7 +183,7 @@ int nuodb_execute_prepared_statement(void * stmt, void * rs)
 
 unsigned long long nuodb_fetch_result(void * rs)
 {
-  ResultSet *nuodb_rs = (ResultSet *) rs;
+  NuoDB::ResultSet *nuodb_rs = (NuoDB::ResultSet *) rs;
 
   int ncolumns = nuodb_rs->getMetaData()->getColumnCount();
   int rows = 0;
@@ -174,12 +201,12 @@ unsigned long long nuodb_fetch_result(void * rs)
 
 void nuodb_close_result(void * rs)
 {
-  ResultSet *nuodb_rs = (ResultSet *) rs;
+  NuoDB::ResultSet *nuodb_rs = (NuoDB::ResultSet *) rs;
   nuodb_rs->close();
 }
 
 void nuodb_close_statement(void * stmt)
 {
-  Statement *nuodb_stmt = (Statement *) stmt;
+  NuoDB::Statement *nuodb_stmt = (NuoDB::Statement *) stmt;
   nuodb_stmt->close();
 }
