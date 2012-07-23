@@ -56,7 +56,8 @@ void * nuodb_create_connection(const char * chorus, const char * user, const cha
     return (void *) conn;
   }
   catch (NuoDB::SQLException& xcp)
-  {
+  {	  
+    printf("Exception in nuodb_create_connection(): %s\n", xcp.getText());
     return NULL;
   }
 }
