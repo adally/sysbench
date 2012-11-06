@@ -23,3 +23,9 @@ m4/ltoptions.m4
 m4/ltsugar.m4
 m4/ltversion.m4
 m4/lt~obsolete.m4
+*.o
+*.a
+sysbench/sysbench
+doc/manual.html
+v
+vz
